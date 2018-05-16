@@ -27,6 +27,7 @@
     "pretest": "npm run clean && npm run build:current",
     "test": "lb-mocha DIST/test",
     "posttest": "npm run lint",
+    "test:dev": "lb-dist mocha DIST/test/**/*.js && npm run lint",
     "prestart": "npm run build:current",
     "start": "node ."
   },
