@@ -3,16 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {DefaultCrudRepository, EntityCrudRepository} from '.';
-import {
-  Entity,
-  Filter,
-  AnyObject,
-  Where,
-  DataObject,
-  Options,
-  WhereBuilder,
-} from '..';
+import {EntityCrudRepository, constrainDataObject, constrainFilter} from '.';
+import {Entity, Filter, AnyObject, Options} from '..';
 
 /**
  * CRUD operations for a target repository of a HasMany relation
@@ -35,12 +27,10 @@ export interface HasManyEntityCrudRepository<T extends Entity, ID> {
 }
 
 export class DefaultHasManyEntityCrudRepository<
-  S extends Entity,
   T extends Entity,
-  TargetRepository extends DefaultCrudRepository<T, typeof Entity.prototype.id>,
+  TargetRepository extends EntityCrudRepository<T, typeof Entity.prototype.id>,
   ID
 > implements HasManyEntityCrudRepository<T, ID> {
-  public constraint: AnyObject = {};
   /**
    * Constructor of DefaultHasManyEntityCrudRepository
    * @param sourceInstance the source model instance
@@ -49,21 +39,13 @@ export class DefaultHasManyEntityCrudRepository<
    * instance
    */
   constructor(
-    public sourceInstance: S,
     public targetRepository: TargetRepository,
-    public foreignKeyName: string,
-  ) {
-    let targetProp = this.targetRepository.entityClass.definition.properties[
-      this.foreignKeyName
-    ].type;
-    this.constraint[
-      this.foreignKeyName
-    ] = sourceInstance.getId() as typeof targetProp;
-  }
+    public constraint: AnyObject,
+  ) {}
 
   async create(targetModelData: Partial<T>, options?: Options): Promise<T> {
     return await this.targetRepository.create(
-      constrainDataObject(targetModelData, this.constraint),
+      constrainDataObject(targetModelData, this.constraint) as Partial<T>,
       options,
     );
   }

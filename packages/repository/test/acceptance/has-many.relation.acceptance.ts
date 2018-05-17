@@ -10,6 +10,9 @@ import {
   DefaultCrudRepository,
   juggler,
   EntityCrudRepository,
+  constrainedRepositoryFactory,
+  HasManyDefinition,
+  RelationType,
 } from '../..';
 import {expect} from '@loopback/testlab';
 
@@ -29,9 +32,19 @@ describe('HasMany relation', () => {
     async function create(customerId: number, orderData: Partial<Order>) {
       // Ideally, we would like to write
       // customerRepo.orders.create(customerId, orderData);
-
+      // or customerRepo.orders({id: customerId}).*
       // The initial "involved" implementation is below
+
       const constraint = {id: customerId};
+
+      //FIXME: this should be inferred from relational decorators
+      const customerHasManyOrdersRelationMeta: HasManyDefinition = {
+        modelFrom: Customer,
+        keyFrom: 'id',
+        keyTo: 'customerId',
+        type: RelationType.hasMany,
+      };
+
       //FIXME: should be automagically instantiated via DI or other means
       const customerOrders = constrainedRepositoryFactory(
         constraint,
@@ -39,13 +52,15 @@ describe('HasMany relation', () => {
         orderRepo,
       );
       return await customerOrders.create(orderData);
-      //or return await this.customerRepo.orders(constraint).*
     }
 
     const description = 'an order desc';
     const order = await create(existingCustomerId, {description});
 
-    expect(order.toObject()).to.containDeep({existingCustomerId, description});
+    expect(order.toObject()).to.containDeep({
+      customerId: existingCustomerId,
+      description,
+    });
     const persisted = await orderRepo.findById(order.id);
     expect(persisted.toObject()).to.deepEqual(order.toObject());
   });

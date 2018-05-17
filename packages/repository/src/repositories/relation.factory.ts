@@ -3,12 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {
-  Repository,
-  juggler,
-  DefaultCrudRepository,
-  EntityCrudRepository,
-} from '.';
+import {EntityCrudRepository} from '.';
 import {
   Model,
   RelationType,
@@ -16,54 +11,46 @@ import {
   Options,
   Entity,
   Class,
-  relation,
   FilterBuilder,
   Filter,
   WhereBuilder,
   Where,
   DataObject,
 } from '..';
-import {Constructor} from '../../../context';
 import {cloneDeep, isArray} from 'lodash';
-import {HasManyEntityCrudRepository, DefaultHasManyEntityCrudRepository} from './relation.repository';
+import {
+  HasManyEntityCrudRepository,
+  DefaultHasManyEntityCrudRepository,
+} from './relation.repository';
 
 export declare type RelationDefinitionBase = {
-  // type: RelationType;
-  as: string;
+  type: RelationType;
   modelFrom: Class<Entity> | string;
-  target: Class<Entity> | string;
-  keyFrom: string;
   keyTo: string;
+  keyFrom: string;
 };
 
 export interface HasManyDefinition extends RelationDefinitionBase {
   type: RelationType.hasMany;
 }
 
-export interface BelongsToDefinition extends RelationDefinitionBase {
-  type: RelationType.belongsTo;
-}
-
-export type RelationDefinition = HasManyDefinition | BelongsToDefinition;
-
 export function constrainedRepositoryFactory<T extends Entity, ID>(
   constraint: AnyObject,
   relationMetadata: HasManyDefinition,
   targetRepository: EntityCrudRepository<T, ID>,
-): HasManyEntityCrudRepository<T, ID>;
+): HasManyEntityCrudRepository<T, ID> {
+  switch (relationMetadata.type) {
+    case RelationType.hasMany:
+      const fkConstraint: AnyObject = {};
+      fkConstraint[relationMetadata.keyTo] =
+        constraint[relationMetadata.keyFrom];
 
-export function constrainedRepositoryFactory<T extends Entity, ID>(
-  constraint: AnyObject,
-  relationMetadata: RelationDefinition,
-  targetRepository: EntityCrudRepository<T, ID>,
-) {
-  switch(relationMetadata.type) {
-    case RelationType.hasMany
       return new DefaultHasManyEntityCrudRepository(
-      // ...
-    );
+        targetRepository,
+        fkConstraint,
+      );
   }
-};
+}
 
 /**
  * A utility function which takes a filter and enforces constraint(s)
@@ -78,7 +65,7 @@ export function constrainFilter(
   constraint: AnyObject,
 ): Filter {
   let constrainedFilter: Filter = {};
-  let constrainedWhere = new WhereBuilder();
+  const constrainedWhere = new WhereBuilder();
   for (const c in constraint) {
     constrainedWhere.eq(c, constraint[c]);
   }
@@ -107,7 +94,7 @@ export function constrainWhere(
   originalWhere: Where | undefined,
   constraint: AnyObject,
 ): Where {
-  let constrainedWhere = new WhereBuilder();
+  const constrainedWhere = new WhereBuilder();
   for (const c in constraint) {
     constrainedWhere.eq(c, constraint[c]);
   }
@@ -117,12 +104,12 @@ export function constrainWhere(
   return constrainedWhere.where;
 }
 
-function constrainDataObject<T extends Entity>(
+export function constrainDataObject<T extends Entity>(
   originalData: DataObject<T>,
   constraint: AnyObject,
 ): DataObject<T>;
 
-function constrainDataObject<T extends Entity>(
+export function constrainDataObject<T extends Entity>(
   originalData: DataObject<T>[],
   constraint: AnyObject,
 ): DataObject<T>[];
@@ -135,8 +122,8 @@ function constrainDataObject<T extends Entity>(
  * the original instance data
  */
 // tslint:disable-next-line:no-any
-function constrainDataObject(originalData: any, constraint: any): any {
-  let constrainedData = cloneDeep(originalData);
+export function constrainDataObject(originalData: any, constraint: any): any {
+  const constrainedData = cloneDeep(originalData);
   if (typeof originalData === 'object') {
     addConstraintToDataObject(constraint, constrainedData);
   } else if (isArray(originalData)) {
@@ -148,15 +135,15 @@ function constrainDataObject(originalData: any, constraint: any): any {
 
   // tslint:disable-next-line:no-any
   function addConstraintToDataObject(constrainObject: any, modelData: any) {
-    for (const c in constraint) {
-      if (constrainedData[c]) {
+    for (const c in constrainObject) {
+      if (modelData[c]) {
         console.warn(
           'Overwriting %s with %s',
-          constrainedData[c],
-          constraint[c],
+          modelData[c],
+          constrainObject[c],
         );
       }
-      constrainedData[c] = constraint[c];
+      modelData[c] = constrainObject[c];
     }
   }
 }
