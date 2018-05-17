@@ -23,7 +23,7 @@ import {
   DefaultHasManyEntityCrudRepository,
 } from './relation.repository';
 
-export declare type RelationDefinitionBase = {
+export type RelationDefinitionBase = {
   type: RelationType;
   modelFrom: Class<Entity> | string;
   keyTo: string;
@@ -33,7 +33,22 @@ export declare type RelationDefinitionBase = {
 export interface HasManyDefinition extends RelationDefinitionBase {
   type: RelationType.hasMany;
 }
-
+/**
+ * Enforces a constraint on a repository based on a relationship contract
+ * between models. Returns a relational repository that exposes applicable CRUD
+ * method APIs for the related target repository. For example, if a Customer model is
+ * related to an Order model via a HasMany relation, then, the relational
+ * repository returned by this method would be constrained by a Customer model
+ * instance's id(s).
+ *
+ * @param constraint The constraint to apply to the target repository. For
+ * example, {id: '5'}.
+ * @param relationMetadata The relation metadata used to used to describe the
+ * relationship and determine how to apply the constraint.
+ * @param targetRepository The repository which represents the target model of a
+ * relation attached to a datasource.
+ *
+ */
 export function constrainedRepositoryFactory<T extends Entity, ID>(
   constraint: AnyObject,
   relationMetadata: HasManyDefinition,
