@@ -14,15 +14,15 @@
       "type": "node",
       "request": "launch",
       "name": "Run Mocha tests",
-      "program": "${workspaceRoot}/node_modules/.bin/_mocha",
-      "cwd": "${workspaceRoot}",
+      "program": "${workspaceFolder}/node_modules/.bin/lb-mocha",
+      "cwd": "${workspaceFolder}",
       "args": [
-        "--opts",
-        "${workspaceRoot}/test/mocha.opts",
-        "dist*/test/**/*.js",
+        "DIST/test/**/*.js",
         "-t",
-        "0"
-      ]
+        "0",
+        "--inspect"
+      ],
+      "autoAttachChildProcesses": true
     }
   ]
 }

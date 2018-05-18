@@ -14,12 +14,22 @@
       "type": "node",
       "request": "launch",
       "name": "Run Mocha tests",
+<% if (project.loopbackBuild) { -%>
+      "autoAttachChildProcesses": true,
+      "program": "${workspaceRoot}/node_modules/.bin/lb-mocha",
+<% } else { -%>
       "program": "${workspaceRoot}/node_modules/.bin/_mocha",
+<% } -%>
       "cwd": "${workspaceRoot}",
       "args": [
         "--opts",
         "${workspaceRoot}/test/mocha.opts",
-        "dist*/test/**/*.js",
+<% if (project.loopbackBuild) { -%>
+        "--inspect",
+        "DIST/test/**/*.js",
+<% } else {-%>
+        "dist/test/**/*.js",
+<% } -%>
         "-t",
         "0"
       ]
