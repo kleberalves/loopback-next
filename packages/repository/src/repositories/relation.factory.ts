@@ -3,20 +3,11 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {EntityCrudRepository} from '.';
-import {
-  Model,
-  RelationType,
-  AnyObject,
-  Options,
-  Entity,
-  Class,
-  FilterBuilder,
-  Filter,
-  WhereBuilder,
-  Where,
-  DataObject,
-} from '..';
+import {EntityCrudRepository} from './repository';
+import {AnyObject, Class, DataObject} from '../common-types';
+import {Entity} from '../model';
+import {RelationType} from '../decorators/relation.decorator';
+import {Filter, WhereBuilder, Where} from '../query';
 import {cloneDeep, isArray} from 'lodash';
 import {
   HasManyEntityCrudRepository,
@@ -143,7 +134,7 @@ export function constrainDataObject(originalData: any, constraint: any): any {
     addConstraintToDataObject(constraint, constrainedData);
   } else if (isArray(originalData)) {
     for (const data in originalData) {
-      addConstraintToDataObject(constraint, constrainedData);
+      addConstraintToDataObject(constraint[data], constrainedData[data]);
     }
   }
   return constrainedData;

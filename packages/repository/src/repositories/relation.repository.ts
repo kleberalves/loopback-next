@@ -3,8 +3,11 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {EntityCrudRepository, constrainDataObject, constrainFilter} from '.';
-import {Entity, Filter, AnyObject, Options} from '..';
+import {EntityCrudRepository} from './repository';
+import {constrainDataObject, constrainFilter} from './relation.factory';
+import {AnyObject, Options} from '../common-types';
+import {Entity} from '../model';
+import {Filter} from '../query';
 
 /**
  * CRUD operations for a target repository of a HasMany relation
