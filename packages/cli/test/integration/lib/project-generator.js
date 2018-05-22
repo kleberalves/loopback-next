@@ -239,7 +239,6 @@ module.exports = function(projGenerator, props, projectType) {
           '.npmrc',
           'tslint.json',
           'src/index.ts',
-          '.vscode/launch.json',
           '.vscode/settings.json',
           '.vscode/tasks.json',
         ]);
@@ -248,7 +247,6 @@ module.exports = function(projGenerator, props, projectType) {
           ['package.json', '@loopback/build'],
           ['tslint.json', '@loopback/build'],
           ['tsconfig.json', '@loopback/build'],
-          ['.vscode/launch.json', 'lb-mocha'],
         ]);
         assert.noFileContent([
           ['package.json', '"typescript"'],
@@ -339,7 +337,6 @@ module.exports = function(projGenerator, props, projectType) {
           ['package.json', '"prettier"'],
           ['tslint.json', '"rules"'],
           ['tsconfig.json', '"compilerOptions"'],
-          ['.vscode/launch.json', '_mocha'],
         ]);
       });
     });
