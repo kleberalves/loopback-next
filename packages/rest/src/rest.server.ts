@@ -16,7 +16,8 @@ import {
   createControllerFactoryForBinding,
 } from './router/routing-table';
 import {OpenApiSpec, OperationObject} from '@loopback/openapi-v3-types';
-import {ServerRequest, ServerResponse, createServer} from 'http';
+import {ServerRequest, ServerResponse} from 'http';
+import {HttpEndpoint} from '@loopback/http-server';
 import * as Http from 'http';
 import * as cors from 'cors';
 import {Application, CoreBindings, Server} from '@loopback/core';
@@ -575,21 +576,12 @@ export class RestServer extends Context implements Server, HttpServerLike {
 
     const httpPort = await this.get<number>(RestBindings.PORT);
     const httpHost = await this.get<string | undefined>(RestBindings.HOST);
-    this._httpServer = createServer(this.requestHandler);
-    const httpServer = this._httpServer;
 
-    // TODO(bajtos) support httpHostname too
-    // See https://github.com/strongloop/loopback-next/issues/434
-    httpServer.listen(httpPort, httpHost);
-
-    return new Promise<void>((resolve, reject) => {
-      httpServer.once('listening', () => {
-        const address = httpServer.address() as AddressInfo;
-        this.bind(RestBindings.PORT).to(address.port);
-        resolve();
-      });
-      httpServer.once('error', reject);
-    });
+    this._httpServer = HttpEndpoint.create(
+      {port: httpPort, host: httpHost},
+      this.requestHandler,
+    );
+    return HttpEndpoint.start();
   }
 
   /**
@@ -600,16 +592,7 @@ export class RestServer extends Context implements Server, HttpServerLike {
    */
   async stop() {
     // Kill the server instance.
-    const server = this._httpServer;
-    return new Promise<void>((resolve, reject) => {
-      server.close((err: Error) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+    return HttpEndpoint.stop();
   }
 
   protected _onUnhandledError(req: Request, res: Response, err: Error) {
