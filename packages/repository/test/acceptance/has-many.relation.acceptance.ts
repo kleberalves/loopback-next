@@ -10,7 +10,7 @@ import {
   DefaultCrudRepository,
   juggler,
   EntityCrudRepository,
-  constrainedRepositoryFactory,
+  relatedRepositoryFactory,
   HasManyDefinition,
   RelationType,
 } from '../..';
@@ -35,8 +35,6 @@ describe('HasMany relation', () => {
       // or customerRepo.orders({id: customerId}).*
       // The initial "involved" implementation is below
 
-      const constraint = {id: customerId};
-
       //FIXME: this should be inferred from relational decorators
       const customerHasManyOrdersRelationMeta: HasManyDefinition = {
         modelFrom: Customer,
@@ -46,8 +44,8 @@ describe('HasMany relation', () => {
       };
 
       //FIXME: should be automagically instantiated via DI or other means
-      const customerOrders = constrainedRepositoryFactory(
-        constraint,
+      const customerOrders = relatedRepositoryFactory(
+        customerId,
         customerHasManyOrdersRelationMeta,
         orderRepo,
       );

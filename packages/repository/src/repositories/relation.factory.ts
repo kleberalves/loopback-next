@@ -40,16 +40,14 @@ export interface HasManyDefinition extends RelationDefinitionBase {
  * relation attached to a datasource.
  *
  */
-export function constrainedRepositoryFactory<T extends Entity, ID>(
-  constraint: AnyObject,
+export function relatedRepositoryFactory<SourceID, T extends Entity, ID>(
+  sourceModelId: SourceID,
   relationMetadata: HasManyDefinition,
   targetRepository: EntityCrudRepository<T, ID>,
 ): HasManyEntityCrudRepository<T, ID> {
   switch (relationMetadata.type) {
     case RelationType.hasMany:
-      const fkConstraint: AnyObject = {};
-      fkConstraint[relationMetadata.keyTo] =
-        constraint[relationMetadata.keyFrom];
+      const fkConstraint = {[relationMetadata.keyTo]: sourceModelId};
 
       return new DefaultHasManyEntityCrudRepository(
         targetRepository,
