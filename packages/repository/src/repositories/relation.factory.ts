@@ -7,7 +7,7 @@ import {EntityCrudRepository} from './repository';
 import {AnyObject, Class, DataObject} from '../common-types';
 import {Entity} from '../model';
 import {RelationType} from '../decorators/relation.decorator';
-import {Filter, WhereBuilder, Where} from '../query';
+import {Filter, WhereBuilder, Where, FilterBuilder} from '../query';
 import {cloneDeep, isArray} from 'lodash';
 import {
   HasManyEntityCrudRepository,
@@ -70,22 +70,8 @@ export function constrainFilter(
   originalFilter: Filter | undefined,
   constraint: AnyObject,
 ): Filter {
-  let constrainedFilter: Filter = {};
-  const constrainedWhere = new WhereBuilder();
-  for (const c in constraint) {
-    constrainedWhere.eq(c, constraint[c]);
-  }
-  if (originalFilter) {
-    constrainedFilter = cloneDeep(originalFilter);
-    if (originalFilter.where) {
-      constrainedFilter.where = constrainedWhere.and(
-        originalFilter.where,
-      ).where;
-    }
-  } else if (originalFilter === undefined) {
-    constrainedFilter.where = constrainedWhere.where;
-  }
-  return constrainedFilter;
+  const builder = new FilterBuilder(originalFilter);
+  return builder.impose(constraint).build();
 }
 
 /**
@@ -100,14 +86,8 @@ export function constrainWhere(
   originalWhere: Where | undefined,
   constraint: AnyObject,
 ): Where {
-  const constrainedWhere = new WhereBuilder();
-  for (const c in constraint) {
-    constrainedWhere.eq(c, constraint[c]);
-  }
-  if (originalWhere) {
-    constrainedWhere.where = constrainedWhere.and(originalWhere).where;
-  }
-  return constrainedWhere.where;
+  const builder = new WhereBuilder(originalWhere);
+  return builder.impose(constraint).build();
 }
 
 export function constrainDataObject<T extends Entity>(
