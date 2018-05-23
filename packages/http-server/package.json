@@ -7,28 +7,32 @@
   },
   "scripts": {
     "acceptance": "lb-mocha \"DIST/test/acceptance/**/*.js\"",
-    "build": "lb-tsc es2017",
+    "build": "npm run build:dist8 && npm run build:dist10",
     "build:apidocs": "lb-apidocs",
-    "clean": "lb-clean loopback-http-server*.tgz dist package api-docs",
-    "prepublishOnly": "npm run build && npm run build:apidocs",
-    "pretest": "npm run build",
+    "build:current": "lb-tsc",
+    "build:dist8": "lb-tsc es2017",
+    "build:dist10": "lb-tsc es2018",
+    "clean": "lb-clean loopback-core*.tgz dist* package api-docs",
+    "pretest": "npm run build:current",
     "integration": "lb-mocha \"DIST/test/integration/**/*.js\"",
     "test": "lb-mocha \"DIST/test/unit/**/*.js\" \"DIST/test/integration/**/*.js\" \"DIST/test/acceptance/**/*.js\"",
     "unit": "lb-mocha \"DIST/test/unit/**/*.js\"",
-    "verify": "npm pack && tar xf loopback-http-server*.tgz && tree package && npm run clean"
+    "verify": "npm pack && tar xf loopback-core*.tgz && tree package && npm run clean"
   },
   "author": "IBM",
   "copyright.owner": "IBM Corp.",
   "license": "MIT",
   "dependencies": {
-    "@loopback/context": "^0.11.1",
-    "@loopback/core": "^0.8.3",
+    "@loopback/context": "^0.11.2",
+    "@loopback/core": "^0.8.4",
+    "@loopback/dist-util": "^0.3.1",
     "debug": "^3.1.0"
   },
   "devDependencies": {
-    "@loopback/build": "^0.2.0",
-    "@loopback/testlab": "^0.3.0",
-    "@types/debug": "^0.0.30"
+    "@loopback/build": "^0.6.5",
+    "@loopback/testlab": "^0.10.4",
+    "@types/debug": "^0.0.30",
+    "@types/node": "^10.1.2"
   },
   "files": [
     "README.md",
