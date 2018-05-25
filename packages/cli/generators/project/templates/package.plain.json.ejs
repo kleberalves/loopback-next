@@ -41,7 +41,7 @@
     "posttest": "npm run lint",
 <% } -%>
 <% if (project.mocha && (project.prettier || project.tslint)) { -%>
-    "test:dev": "mocha dist/test/**/*.js && npm run lint",
+    "test:dev": "mocha dist/test/**/*.js && npm run posttest",
 <% } else if (project.mocha) { -%>
     "test:dev": "mocha dist/test/**/*.js",
 <% } -%>

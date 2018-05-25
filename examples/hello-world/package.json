@@ -13,6 +13,7 @@
     "build:current": "lb-tsc",
     "build:dist8": "lb-tsc es2017",
     "build:dist10": "lb-tsc es2018",
+    "build:watch": "lb-tsc --watch",
     "clean": "lb-clean *example-hello-world*.tgz dist* package api-docs",
     "verify": "npm pack && tar xf *example-hello-world*.tgz && tree package && npm run clean",
     "lint": "npm run prettier:check && npm run tslint",
@@ -25,7 +26,7 @@
     "pretest": "npm run clean && npm run build:current",
     "test": "lb-mocha --allow-console-logs \"DIST/test\"",
     "posttest": "npm run lint",
-    "test:dev": "lb-mocha DIST/test/**/*.js && npm run lint",
+    "test:dev": "lb-mocha --allow-console-logs DIST/test/**/*.js && npm run posttest",
     "prestart": "npm run build:current",
     "start": "node .",
     "prepublishOnly": "npm run test"
