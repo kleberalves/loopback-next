@@ -35,7 +35,7 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
     // XXX(kjdelisle): These should be more extensible to allow custom paths
     // for each artifact type.
 
-    this.artifactInfo.outdir = path.resolve(
+    this.artifactInfo.outDir = path.resolve(
       this.artifactInfo.rootDir,
       'controllers',
     );
@@ -204,7 +204,7 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
       debug(`Using template at: ${source}`);
     }
     const dest = this.destinationPath(
-      path.join(this.artifactInfo.outdir, this.artifactInfo.filename),
+      path.join(this.artifactInfo.outDir, this.artifactInfo.filename),
     );
 
     if (debug.enabled) {
@@ -235,6 +235,7 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
         'Controller %s is now created in src/controllers/',
         this.artifactInfo.name,
       );
+      super.updateIndexFile();
     }
   }
 };
