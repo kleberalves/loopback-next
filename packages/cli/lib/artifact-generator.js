@@ -7,8 +7,9 @@
 const BaseGenerator = require('./base-generator');
 const debug = require('./debug')('artifact-generator');
 const utils = require('./utils');
-const index = require('./make-index');
+const makeIndex = require('./make-index');
 const path = require('path');
+const chalk = require('chalk');
 const StatusConflicter = utils.StatusConflicter;
 
 module.exports = class ArtifactGenerator extends BaseGenerator {
@@ -105,15 +106,20 @@ module.exports = class ArtifactGenerator extends BaseGenerator {
     );
   }
 
-  async updateIndexFile() {
-    await index(this.artifactInfo.outDir, {
-      prefix: `.${this.artifactInfo.type}`,
+  async end() {
+    const success = super.end();
+    if (!success) return false;
+
+    // Update `index.ts`
+    await makeIndex(this.artifactInfo.outDir, {
+      prefix: `${this.artifactInfo.type}`,
     });
-    this.log(
-      `UPDATED ${path.relative(
-        this.destinationPath(),
-        this.artifactInfo.outDir,
-      )}/index.ts`,
+
+    const relPath = path.relative(
+      this.destinationPath(),
+      this.artifactInfo.outDir,
     );
+    this.log(chalk.green('   update'), `${relPath}/index.ts`);
+    return true;
   }
 };

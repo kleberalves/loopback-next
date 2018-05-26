@@ -9,6 +9,7 @@ const ArtifactGenerator = require('../../lib/artifact-generator');
 const debug = require('../../lib/debug')('controller-generator');
 const inspect = require('util').inspect;
 const path = require('path');
+const chalk = require('chalk');
 const utils = require('../../lib/utils');
 
 // Exportable constants
@@ -221,8 +222,8 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
     return;
   }
 
-  end() {
-    super.end();
+  async end() {
+    await super.end();
     if (this.shouldExit()) return false;
     // logs a message if there is no file conflict
     if (
@@ -235,7 +236,7 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
         'Controller %s is now created in src/controllers/',
         this.artifactInfo.name,
       );
-      super.updateIndexFile();
+      this.log();
     }
   }
 };
