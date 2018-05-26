@@ -17,8 +17,8 @@ const index = require('../../lib/make-index');
  * DataSource Generator -- CLI
  *
  * Prompts for a name, connector and connector options. Creates json file
- * for the DataSource as well as a Class for a user to modify -- which extends
- * the auto-generated base class.
+ * for the DataSource as well as a Class for a user to modify. Also installs the
+ * appropriate connector from npm.
  */
 module.exports = class DataSourceGenerator extends ArtifactGenerator {
   constructor(args, opts) {
@@ -280,28 +280,5 @@ module.exports = class DataSourceGenerator extends ArtifactGenerator {
 
   async end() {
     await super.end();
-    if (this.shouldExit()) return false;
-    console.log(
-      `conflicter.generationStatus => ${JSON.stringify(
-        this.conflicter.generationStatus,
-      )}`,
-    );
-    // logs a message if there is no file conflict
-    if (
-      this.conflicter.generationStatus[this.artifactInfo.jsonFileName] !==
-        'skip' &&
-      this.conflicter.generationStatus[this.artifactInfo.jsonFileName] !==
-        'identical' &&
-      this.conflicter.generationStatus[this.artifactInfo.tsFileName] !==
-        'skip' &&
-      this.conflicter.generationStatus[this.artifactInfo.tsFileName] !==
-        'identical'
-    ) {
-      this.log();
-      this.log(
-        'DataSource %s is now created in src/datasources/',
-        this.artifactInfo.name,
-      );
-    }
   }
 };
