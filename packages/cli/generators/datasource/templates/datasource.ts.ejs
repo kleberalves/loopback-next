@@ -1,0 +1,8 @@
+import {juggler} from '@loopback/repository';
+const dsConfig = require('./<%= jsonFileName %>');
+
+export class <%= name %>DataSource extends juggler.DataSource {
+  constructor() {
+    super(dsConfig);
+  }
+}
