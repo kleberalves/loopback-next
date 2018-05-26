@@ -110,16 +110,36 @@ module.exports = class ArtifactGenerator extends BaseGenerator {
     const success = super.end();
     if (!success) return false;
 
-    // Update `index.ts`
-    await makeIndex(this.artifactInfo.outDir, {
-      prefix: `${this.artifactInfo.type}`,
+    let generationStatus = true;
+    // Check all files being generated to ensure they succeeded
+    Object.entries(this.conflicter.generationStatus).forEach(([key, val]) => {
+      if (val === 'skip' || val === 'identical') generationStatus = false;
     });
 
-    const relPath = path.relative(
-      this.destinationPath(),
-      this.artifactInfo.outDir,
-    );
-    this.log(chalk.green('   update'), `${relPath}/index.ts`);
-    return true;
+    if (generationStatus) {
+      // Update `index.ts`
+      await makeIndex(this.artifactInfo.outDir, {
+        prefix: `${this.artifactInfo.type}`,
+      });
+
+      // Relative path of output directory
+      const relPath = path.relative(
+        this.destinationPath(),
+        this.artifactInfo.outDir,
+      );
+
+      // Output for users
+      this.log(chalk.green('   update'), `${relPath}/index.ts`);
+      this.log();
+      this.log(
+        utils.toClassName(this.artifactInfo.type),
+        chalk.yellow(this.artifactInfo.name),
+        'is now created in',
+        `${relPath}/`,
+      );
+      this.log();
+    }
+
+    return false;
   }
 };

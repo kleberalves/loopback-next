@@ -224,19 +224,5 @@ module.exports = class ControllerGenerator extends ArtifactGenerator {
 
   async end() {
     await super.end();
-    if (this.shouldExit()) return false;
-    // logs a message if there is no file conflict
-    if (
-      this.conflicter.generationStatus[this.artifactInfo.filename] !== 'skip' &&
-      this.conflicter.generationStatus[this.artifactInfo.filename] !==
-        'identical'
-    ) {
-      this.log();
-      this.log(
-        'Controller %s is now created in src/controllers/',
-        this.artifactInfo.name,
-      );
-      this.log();
-    }
   }
 };
