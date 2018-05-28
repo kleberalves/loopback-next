@@ -21,31 +21,39 @@ describe('HasMany relation', () => {
 
   beforeEach(givenCrudRepositoriesForCustomerAndOrder);
 
+  let existingCustomer: Customer;
   let existingCustomerId: number;
+  let existingCustomerName: string;
   beforeEach(async () => {
-    existingCustomerId = (await givenPersistedCustomerInstance()).id;
+    existingCustomer = await givenPersistedCustomerInstance();
+    existingCustomerId = existingCustomer.id;
+    existingCustomerName = existingCustomer.name;
   });
 
   it('can create an instance of the related model', async () => {
     // A controller method - CustomerOrdersController.create()
     // customerRepo and orderRepo would be injected via constructor arguments
-    async function create(customerId: number, orderData: Partial<Order>) {
+    async function create(
+      customerId: number,
+      customerName: string,
+      orderData: Partial<Order>,
+    ) {
       // Ideally, we would like to write
-      // customerRepo.orders.create(customerId, orderData);
-      // or customerRepo.orders({id: customerId}).*
+      // customerRepo.orders.create([customerId, customerName], orderData);
+      // or customerRepo.orders({customerId: customerId, customerName: customerName}).*
       // The initial "involved" implementation is below
 
       //FIXME: this should be inferred from relational decorators
       const customerHasManyOrdersRelationMeta: HasManyDefinition = {
         modelFrom: Customer,
-        keyFrom: 'id',
-        keyTo: 'customerId',
+        keyFrom: ['id', 'name'],
+        keyTo: ['customerId', 'customerName'],
         type: RelationType.hasMany,
       };
 
       //FIXME: should be automagically instantiated via DI or other means
       const customerOrders = relatedRepositoryFactory(
-        customerId,
+        [customerId, customerName],
         customerHasManyOrdersRelationMeta,
         orderRepo,
       );
@@ -53,7 +61,9 @@ describe('HasMany relation', () => {
     }
 
     const description = 'an order desc';
-    const order = await create(existingCustomerId, {description});
+    const order = await create(existingCustomerId, existingCustomerName, {
+      description,
+    });
 
     expect(order.toObject()).to.containDeep({
       customerId: existingCustomerId,
@@ -101,6 +111,12 @@ describe('HasMany relation', () => {
       required: true,
     })
     customerId: number;
+
+    @property({
+      type: 'string',
+      required: true,
+    })
+    customerName: string;
   }
 
   let customerRepo: EntityCrudRepository<

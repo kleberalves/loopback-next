@@ -36,9 +36,8 @@ export class DefaultHasManyEntityCrudRepository<
 > implements HasManyEntityCrudRepository<T, ID> {
   /**
    * Constructor of DefaultHasManyEntityCrudRepository
-   * @param sourceInstance the source model instance
    * @param targetRepository the related target model repository instance
-   * @param foreignKeyName the foreign key name to constrain the target repository
+   * @param constraint key value pairs of composite keys to constrain the target repository
    * instance
    */
   constructor(

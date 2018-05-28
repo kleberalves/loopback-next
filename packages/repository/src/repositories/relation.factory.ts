@@ -6,7 +6,7 @@
 import {EntityCrudRepository} from './repository';
 import {AnyObject, Class, DataObject} from '../common-types';
 import {Entity} from '../model';
-import {RelationType} from '../decorators/relation.decorator';
+import {RelationType, RelationMetadata} from '../decorators/relation.decorator';
 import {Filter, WhereBuilder, Where, FilterBuilder} from '../query';
 import {cloneDeep, isArray} from 'lodash';
 import {
@@ -17,8 +17,8 @@ import {
 export type RelationDefinitionBase = {
   type: RelationType;
   modelFrom: Class<Entity> | string;
-  keyTo: string;
-  keyFrom: string;
+  keyTo: string[];
+  keyFrom: string[];
 };
 
 export interface HasManyDefinition extends RelationDefinitionBase {
@@ -28,27 +28,35 @@ export interface HasManyDefinition extends RelationDefinitionBase {
  * Enforces a constraint on a repository based on a relationship contract
  * between models. Returns a relational repository that exposes applicable CRUD
  * method APIs for the related target repository. For example, if a Customer model is
- * related to an Order model via a HasMany relation, then, the relational
+ * related to an Order model via a HasMany relation, then the relational
  * repository returned by this method would be constrained by a Customer model
- * instance's id(s).
+ * instance's unique keys.
  *
- * @param constraint The constraint to apply to the target repository. For
- * example, {id: '5'}.
- * @param relationMetadata The relation metadata used to used to describe the
+ * @param referencedKeyValues An array of constraint key values to be used for
+ * enforcement.
+ * @param relationMetadata The relation metadata used to describe the
  * relationship and determine how to apply the constraint.
  * @param targetRepository The repository which represents the target model of a
  * relation attached to a datasource.
  *
  */
-export function relatedRepositoryFactory<SourceID, T extends Entity, ID>(
-  sourceModelId: SourceID,
+export function relatedRepositoryFactory<
+  S extends Entity,
+  T extends Entity,
+  ID
+>(
+  referencedKeyValues: Array<string | number>,
   relationMetadata: HasManyDefinition,
   targetRepository: EntityCrudRepository<T, ID>,
 ): HasManyEntityCrudRepository<T, ID> {
   switch (relationMetadata.type) {
     case RelationType.hasMany:
-      const fkConstraint = {[relationMetadata.keyTo]: sourceModelId};
-
+      let fkConstraint = {};
+      referencedKeyValues.forEach((val, index) => {
+        fkConstraint = Object.assign(fkConstraint, {
+          [relationMetadata.keyTo[index]]: val,
+        });
+      });
       return new DefaultHasManyEntityCrudRepository(
         targetRepository,
         fkConstraint,
